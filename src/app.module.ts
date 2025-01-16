@@ -1,16 +1,16 @@
+import { AuthenticationModule } from '@auth_modules/authentication.module';
+import authConfig from '@auth_modules/config/auth.config';
+import { CompanyModule } from '@company_modules/company.module';
+import databaseConfig from '@database/config/database-config';
+import { DatabaseConfigService } from '@database/database-config.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import databaseConfig from './database/config/database-config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PaymentsModule } from '@payments_modules/payments.module';
+import { PlansModule } from '@plans_modules/plans.module';
+import { TemplatesModule } from '@templates_modules/templates.module';
+import { UsersModule } from '@users_modules/users.module';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { DatabaseConfigService } from './database/database-config.service';
-import authConfig from './modules/authentication/config/auth.config';
-import { AuthenticationModule } from './modules/authentication/authentication.module';
-import { CompanyModule } from './modules/company/company.module';
-import { PaymentsModule } from './modules/payments/payments.module';
-import { PlansModule } from './modules/plans/plans.module';
-import { TemplatesModule } from './modules/templates/templates.module';
-import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [

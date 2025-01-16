@@ -1,4 +1,4 @@
-import { BaseEntity } from 'src/common/entity/baseEntity';
+import { BaseEntity } from '@common/entity/baseEntity';
 import { Entity } from 'typeorm';
 
 @Entity('user_permission')

@@ -1,9 +1,9 @@
-import { BaseEntity } from 'src/common/entity/baseEntity';
+import { RoleType } from '@constants/role-type';
+import { SessionStatus } from '@constants/session-type';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { IUser } from './interfaces/user.interface';
-import { RoleType } from 'src/constants/role-type';
 import { UserSession } from './userSession.entity';
-import { SessionStatus } from 'src/constants/session-type';
+import { BaseEntity } from '@common/entity/baseEntity';
 
 @Entity('user')
 export class UsersEntity extends BaseEntity implements IUser {
@@ -60,7 +60,7 @@ export class UsersEntity extends BaseEntity implements IUser {
   active: boolean;
 
   @Column({ type: 'jsonb', default: [] })
-  ip_address: [
+  trusted_ip_address: [
     {
       ip: string;
       trusted: boolean;

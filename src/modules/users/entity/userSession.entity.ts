@@ -1,7 +1,7 @@
-import { BaseEntity } from 'src/common/entity/baseEntity';
+import { BaseEntity } from '@common/entity/baseEntity';
+import { SessionStatus } from '@constants/session-type';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { UsersEntity } from './user.entity';
-import { SessionStatus } from 'src/constants/session-type';
 
 interface UserAgent {
   version: string;
