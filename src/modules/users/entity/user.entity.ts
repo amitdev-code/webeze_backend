@@ -1,7 +1,9 @@
 import { BaseEntity } from 'src/common/entity/baseEntity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { IUser } from './interfaces/user.interface';
 import { RoleType } from 'src/constants/role-type';
+import { UserSession } from './userSession.entity';
+import { SessionStatus } from 'src/constants/session-type';
 
 @Entity('user')
 export class UsersEntity extends BaseEntity implements IUser {
@@ -57,9 +59,52 @@ export class UsersEntity extends BaseEntity implements IUser {
   @Column({ type: 'bool', default: true })
   active: boolean;
 
-  @Column({ type: 'varchar', length: 255 })
-  ip_address: string;
+  @Column({ type: 'jsonb', default: [] })
+  ip_address: [
+    {
+      ip: string;
+      trusted: boolean;
+    },
+  ];
 
   @Column({ type: 'int', default: 0 })
   session_count: number;
+
+  @Column({ type: 'jsonb', default: { is_configured: false } })
+  two_fact_auth: {
+    is_configured: boolean;
+    created_at: Date;
+    secret: {
+      ascii: string;
+      hex: string;
+      base32: string;
+      otpauth_url: string;
+    };
+    recovery_codes: [
+      {
+        code: string;
+        active: boolean;
+      },
+    ];
+    attempts: number;
+  };
+
+  @Column({ type: 'bool', default: false })
+  can_use_default_password: boolean;
+
+  @Column({ type: 'bool', default: false })
+  onboard: boolean;
+
+  // RELATIONS
+  @OneToMany(() => UserSession, (session) => session.user)
+  sessions: UserSession[];
+
+  // Helper method to get active sessions
+  getActiveSessions(): UserSession[] {
+    return (
+      this.sessions?.filter(
+        (session) => session.status === SessionStatus.ACTIVE,
+      ) ?? []
+    );
+  }
 }
