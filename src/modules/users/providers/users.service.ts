@@ -1,4 +1,4 @@
-import { UserNotFoundException } from '@exceptions/userNotFoundException';
+import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersEntity } from '@users_modules/entity/user.entity';

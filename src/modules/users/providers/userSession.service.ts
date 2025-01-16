@@ -1,6 +1,6 @@
 import { SessionStatus } from '@constants/session-type';
-import { userNoActiveSessionFoundException } from '@exceptions/userNoActiveSessionFoundException';
-import { UserNotFoundException } from '@exceptions/userNotFoundException';
+import { userNoActiveSessionFoundException } from '@exceptions/userExceptions/userNoActiveSessionFoundException';
+import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { UsersEntity } from '@users_modules/entity/user.entity';
 import { UserSession } from '@users_modules/entity/userSession.entity';
