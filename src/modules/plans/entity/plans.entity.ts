@@ -1,3 +1,4 @@
+import { PlanType } from '@constants/plan-type';
 import { BaseEntity } from 'src/common/entity/baseEntity';
 import { Column, Entity } from 'typeorm';
 @Entity('plans')
@@ -28,11 +29,14 @@ export class PlansEntity extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: ['default', 'special', 'custom'],
-    default: 'default',
+    enum: PlanType,
+    default: PlanType.DEFAULT,
   })
   plan_type: string;
 
   @Column({ type: 'int', default: 7 })
   plan_duration: number;
+
+  @Column({ type: 'bool', default: true })
+  is_subscribable: boolean;
 }
