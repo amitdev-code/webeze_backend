@@ -15,6 +15,7 @@ export class UsersEntity extends BaseEntity implements IUser {
     email: string;
     is_verified: boolean;
     is_primary: boolean;
+    webeze_newsletter: boolean;
   };
 
   @Column({ type: 'varchar', length: 255 })

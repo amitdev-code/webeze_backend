@@ -21,6 +21,10 @@ class EnvironmentVariablesValidator {
   @IsOptional()
   @IsString()
   JWT_REFRESH_REMEMBER_ME_EXPIRY_TIME: string;
+
+  @IsOptional()
+  @IsString()
+  DATABASE_ENCRYPTION_KEY: string;
 }
 
 export default registerAs<AuthConfig>('auth', () => {
@@ -33,5 +37,6 @@ export default registerAs<AuthConfig>('auth', () => {
     refreshExpires: process.env.JWT_REFRESH_EXPIRY_TIME || '1d',
     refreshRememberMeExpires:
       process.env.JWT_REFRESH_REMEMBER_ME_EXPIRY_TIME || '30d',
+    dbEncryptionKey: process.env.DATABASE_ENCRYPTION_KEY,
   };
 });

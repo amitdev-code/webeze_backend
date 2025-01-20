@@ -68,11 +68,7 @@ export class UsersService {
     if (isAlreadyTrusted) {
       return user;
     }
-
-    // Add the new trusted IP
     user.trusted_ip_address.push({ ip, trusted: true });
-
-    // Save the updated user entity
     return await this.dataSource.getRepository(UsersEntity).save(user);
   }
 }

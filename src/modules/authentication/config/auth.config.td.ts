@@ -4,4 +4,5 @@ export type AuthConfig = {
   refreshSecret: string;
   refreshExpires: string;
   refreshRememberMeExpires: string;
+  dbEncryptionKey: string;
 };
