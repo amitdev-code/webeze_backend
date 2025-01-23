@@ -11,11 +11,12 @@ import { PlansModule } from '@plans_modules/plans.module';
 import { TemplatesModule } from '@templates_modules/templates.module';
 import { UsersModule } from '@users_modules/users.module';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import urlConfig from './env-config/url-config/url-config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [databaseConfig, authConfig],
+      load: [databaseConfig, authConfig, urlConfig],
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({

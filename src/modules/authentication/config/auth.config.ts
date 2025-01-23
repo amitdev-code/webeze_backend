@@ -25,6 +25,14 @@ class EnvironmentVariablesValidator {
   @IsOptional()
   @IsString()
   DATABASE_ENCRYPTION_KEY: string;
+
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_ID: string;
+
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_SECRET: string;
 }
 
 export default registerAs<AuthConfig>('auth', () => {
@@ -38,5 +46,7 @@ export default registerAs<AuthConfig>('auth', () => {
     refreshRememberMeExpires:
       process.env.JWT_REFRESH_REMEMBER_ME_EXPIRY_TIME || '30d',
     dbEncryptionKey: process.env.DATABASE_ENCRYPTION_KEY,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   };
 });

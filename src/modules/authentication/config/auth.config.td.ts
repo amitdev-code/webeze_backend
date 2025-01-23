@@ -5,4 +5,6 @@ export type AuthConfig = {
   refreshExpires: string;
   refreshRememberMeExpires: string;
   dbEncryptionKey: string;
+  googleClientId: string;
+  googleClientSecret: string;
 };
