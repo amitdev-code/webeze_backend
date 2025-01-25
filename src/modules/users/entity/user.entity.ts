@@ -96,6 +96,9 @@ export class UsersEntity extends BaseEntity implements IUser {
   @Column({ type: 'bool', default: false })
   onboard: boolean;
 
+  @Column({ type: 'bool', default: false })
+  dashboard_tour: boolean;
+
   // RELATIONS
   @OneToMany(() => UserSession, (session) => session.user)
   sessions: UserSession[];

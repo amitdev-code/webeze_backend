@@ -4,6 +4,7 @@ import { AuthenticationService } from './providers/authentication.service';
 import { AuthenticationTokenService } from './providers/authenticationToken.service';
 import { AuthenticationVerificationController } from './controller/authenticationVerification.controller';
 import { SocialAuthenticationService } from './providers/socialAuthentication.service';
+import { UsersModule } from '@users_modules/users.module';
 
 const SERVICES = [
   AuthenticationService,
@@ -18,5 +19,6 @@ const CONSTROLLERS = [
   controllers: [...CONSTROLLERS],
   providers: [...SERVICES],
   exports: [...SERVICES],
+  imports: [UsersModule],
 })
 export class AuthenticationModule {}

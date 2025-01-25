@@ -1,13 +1,13 @@
 import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundException';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { UsersEntity } from '@users_modules/entity/user.entity';
 import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(UsersEntity)
+    @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
@@ -41,6 +41,20 @@ export class UsersService {
       .getRepository(UsersEntity)
       .createQueryBuilder('user')
       .where("user.useremail ->> 'email' = :email", { email }) // Filters by the 'email' key in the 'useremail' JSON column.
+      .getOne();
+  }
+
+  /**
+   * Fetches a user entity by its phone number.
+   * Uses a query builder to perform a custom query on the database.
+   * @param {string} phone - The phone number of the user.
+   * @returns {Promise<UsersEntity | null>} A promise that resolves to the user entity with the given phone, or null if not found.
+   */
+  async findOneByPhone(phone: string): Promise<UsersEntity | null> {
+    return this.dataSource
+      .getRepository(UsersEntity)
+      .createQueryBuilder('user')
+      .where('user.phone = :phone', { phone }) // Filters by the 'phone' key in the 'phone' column.
       .getOne();
   }
 
