@@ -25,4 +25,8 @@ export class AuthenticationHelperService {
       throw error;
     }
   }
+
+  async validateUserLogin(loginUser: any) {
+    
+  }
 }

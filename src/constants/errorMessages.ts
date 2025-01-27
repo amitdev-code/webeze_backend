@@ -8,6 +8,7 @@ export const ErrorMessages = Object.freeze({
   USER_PHONE_NOT_VERIFIED: 'User phone not verified',
   USER_PHONE_VERIFIED: 'User phone verified',
   USER_NO_ACTIVE_SESSION_FOUND: 'No active session found for user',
+  INVALID_ACCESS_TOKEN: 'Invalid authentication token',
 
   // COMPANY ERROR MESSAGES
   COMPANY_ALREADY_EXISTS: 'Company already exists',
