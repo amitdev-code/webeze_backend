@@ -5,20 +5,25 @@ import { AuthenticationTokenService } from './providers/authenticationToken.serv
 import { AuthenticationVerificationController } from './controller/authenticationVerification.controller';
 import { SocialAuthenticationService } from './providers/socialAuthentication.service';
 import { UsersModule } from '@users_modules/users.module';
+import { AuthenticationHelperService } from './providers/authenticationHelper';
+import { CompanyModule } from '@company_modules/company.module';
 
 const SERVICES = [
   AuthenticationService,
   AuthenticationTokenService,
   SocialAuthenticationService,
+  AuthenticationHelperService,
 ];
 const CONSTROLLERS = [
   AuthenticationController,
   AuthenticationVerificationController,
 ];
+
+const IMPORT_MODULE = [UsersModule, CompanyModule];
 @Module({
   controllers: [...CONSTROLLERS],
   providers: [...SERVICES],
   exports: [...SERVICES],
-  imports: [UsersModule],
+  imports: [...IMPORT_MODULE],
 })
 export class AuthenticationModule {}

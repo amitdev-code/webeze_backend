@@ -3,6 +3,6 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class CompanyAlreadyExistException extends HttpException {
   constructor() {
-    super(ErrorMessages.USER_EMAIL_ALREADY_EXISTS, HttpStatus.CONFLICT);
+    super(ErrorMessages.COMPANY_ALREADY_EXISTS, HttpStatus.CONFLICT);
   }
 }

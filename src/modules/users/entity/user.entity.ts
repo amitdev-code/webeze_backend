@@ -4,10 +4,11 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { IUser } from './interfaces/user.interface';
 import { UserSession } from './userSession.entity';
 import { BaseEntity } from '@common/entity/baseEntity';
+import { CompanyEntity } from 'src/modules/company/entity/company.entity';
 
 @Entity('user')
 export class UsersEntity extends BaseEntity implements IUser {
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   username: string;
 
   @Column({ type: 'jsonb' })
@@ -42,19 +43,19 @@ export class UsersEntity extends BaseEntity implements IUser {
     };
   };
 
-  @Column({ type: 'varchar', length: 15 })
+  @Column({ type: 'varchar', length: 15, nullable: true })
   phone: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   location: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   last_location: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   last_login: Date;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   timezone: string;
 
   @Column({ type: 'bool', default: true })
@@ -102,6 +103,9 @@ export class UsersEntity extends BaseEntity implements IUser {
   // RELATIONS
   @OneToMany(() => UserSession, (session) => session.user)
   sessions: UserSession[];
+
+  @OneToMany(() => CompanyEntity, (company) => company.user)
+  companies: CompanyEntity[];
 
   // Helper method to get active sessions
   getActiveSessions(): UserSession[] {

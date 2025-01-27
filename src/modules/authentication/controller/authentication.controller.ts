@@ -4,6 +4,8 @@ import { RegisterDto } from '@auth_modules/dto/register.dto';
 import { LoginDto } from '@auth_modules/dto/login.dto';
 import { AuthenticationTokenService } from '@auth_modules/providers/authenticationToken.service';
 import { SocialAuthenticationService } from '@auth_modules/providers/socialAuthentication.service';
+import { CurrentUserIp } from '@decorators/getUserIp.decorator';
+import { CurrentUserTimezone } from '@decorators/getUserTimezone.decorator';
 // import { RegisterDto } from '@auth_modules/dto/register.dto';
 // import { LoginDto } from '@auth_modules/dto/login.dto';
 
@@ -16,8 +18,12 @@ export class AuthenticationController {
   ) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
-    return this.authenticationService.register(registerDto);
+  async register(
+    @Body() registerDto: RegisterDto,
+    @CurrentUserIp() ip: string,
+    @CurrentUserTimezone() timezone: string,
+  ) {
+    return this.authenticationService.register(registerDto, ip, timezone);
   }
 
   @Post('login')

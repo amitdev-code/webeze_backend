@@ -1,4 +1,5 @@
 import { CompanyEntity } from '@company_modules/entity/company.entity';
+import { CompanySettingsEntity } from '@company_modules/entity/companySettings.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -26,5 +27,17 @@ export class CompanyService {
       .createQueryBuilder('company')
       .where('company.name = :name', { name })
       .getOne();
+  }
+
+  async createCompany(company: CompanyEntity): Promise<CompanyEntity> {
+    return await this.dataSource.getRepository(CompanyEntity).save(company);
+  }
+
+  async createCompanySettings(company: CompanyEntity) {
+    const companySettings = new CompanySettingsEntity();
+    companySettings.company_id = company.id;
+    return await this.dataSource
+      .getRepository(CompanySettingsEntity)
+      .save(companySettings);
   }
 }

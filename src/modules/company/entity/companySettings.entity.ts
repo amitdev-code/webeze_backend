@@ -31,7 +31,7 @@ export class CompanySettingsEntity extends BaseEntity {
   @Column({ type: 'bool', default: false })
   is_admin_created: boolean;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   subscription_updated: Date;
 
   @Column({
@@ -132,7 +132,7 @@ export class CompanySettingsEntity extends BaseEntity {
   two_fact_auth: boolean;
 
   @Column({ type: 'int' })
-  company_id: number;
+  company_id: string;
 
   @OneToOne(() => CompanyEntity, (company) => company.settings)
   @JoinColumn({ name: 'company_id' })

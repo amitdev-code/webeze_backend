@@ -3,10 +3,18 @@ import { PhoneAlredyExistException } from '@exceptions/commonExceptions/PhoneAlr
 import { Injectable } from '@nestjs/common';
 import { UsersEntity } from '@users_modules/entity/user.entity';
 import { UsersService } from '@users_modules/providers/users.service';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { GeneralHelperFunctions } from '@common/helper/generalHelperFunctions';
+import { RegisterDto } from '@auth_modules/dto/register.dto';
 
 @Injectable()
 export class UserHelperService {
-  constructor(private readonly userservice: UsersService) {}
+  constructor(
+    private readonly userservice: UsersService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+  ) {}
 
   async validateUserByEmailOrPhone(data: {
     validate: string;
@@ -47,5 +55,31 @@ export class UserHelperService {
       default:
         break;
     }
+  }
+
+  async createUser(
+    data: RegisterDto,
+    ip: string,
+    timezone: string,
+  ): Promise<UsersEntity> {
+    // CREATE USER ACCOUNT
+    const user = new UsersEntity();
+    user.useremail = {
+      email: data.email,
+      is_verified: false,
+      is_primary: true,
+      webeze_newsletter: true,
+    };
+    user.password = await GeneralHelperFunctions.generateSaltedPassword(
+      data.password,
+    );
+    user.trusted_ip_address = [
+      {
+        ip,
+        trusted: true,
+      },
+    ];
+    user.timezone = timezone;
+    return await this.dataSource.getRepository(UsersEntity).save(user);
   }
 }
