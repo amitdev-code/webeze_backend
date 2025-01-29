@@ -19,7 +19,7 @@ export class UserSession extends BaseEntity {
   user: UsersEntity;
 
   @Column()
-  userId: string;
+  user_id: string;
 
   @Column({ default: '', length: 100 })
   ip: string;

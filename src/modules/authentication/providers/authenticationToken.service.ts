@@ -1,9 +1,9 @@
 import { TokenPayload } from '@auth_modules/dto/tokenPayload.dto';
-import { InvalidAuthTokenException } from '@exceptions/authenticationExceptions/InvalidAuthTokenException';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import jwt from 'jsonwebtoken';
-
+import { JwtService } from '@nestjs/jwt';
+import { UserHelperService } from '@users_modules/providers/userHelper.service';
+import * as bcrypt from 'bcrypt';
 
 export interface JwtPayload {
   sub: string;
@@ -18,65 +18,79 @@ export class AuthenticationTokenService {
   private readonly JWT_EXPIRY_TIME: string;
   private readonly JWT_REFRESH_SECRET_KEY: string;
   private readonly JWT_REFRESH_EXPIRY_TIME: string;
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userhelperservice: UserHelperService,
+    private jwtService: JwtService,
+  ) {
     const JWT_SECRET_KEY = this.configService.getOrThrow('auth.secret', {
       infer: true,
     });
     const JWT_EXPIRY_TIME = this.configService.getOrThrow('auth.expires', {
       infer: true,
     });
-    const JWT_REFRESH_SECRET_KEY = this.configService.getOrThrow('auth.secret', {
-      infer: true,
-    });
-    const JWT_REFRESH_EXPIRY_TIME = this.configService.getOrThrow('auth.expires', {
-      infer: true,
-    });
+    const JWT_REFRESH_SECRET_KEY = this.configService.getOrThrow(
+      'auth.secret',
+      {
+        infer: true,
+      },
+    );
+    const JWT_REFRESH_EXPIRY_TIME = this.configService.getOrThrow(
+      'auth.expires',
+      {
+        infer: true,
+      },
+    );
 
     this.JWT_SECRET_KEY = JWT_SECRET_KEY;
     this.JWT_EXPIRY_TIME = JWT_EXPIRY_TIME;
     this.JWT_REFRESH_SECRET_KEY = JWT_REFRESH_SECRET_KEY;
-    this.JWT_REFRESH_EXPIRY_TIME = JWT_REFRESH_EXPIRY_TIME
+    this.JWT_REFRESH_EXPIRY_TIME = JWT_REFRESH_EXPIRY_TIME;
   }
 
   async generateAuthenticationToken(tokenPayload: TokenPayload) {
-    const accessToken = jwt.sign(
-      {
-        sub: tokenPayload.user_id,
-        email: tokenPayload.email,
-        role: tokenPayload.role,
-        company: tokenPayload.company_id,
-      },
-      this.JWT_SECRET_KEY,
-      { expiresIn: this.JWT_EXPIRY_TIME }
-    );
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: tokenPayload.user_id,
+          email: tokenPayload.email,
+          role: tokenPayload.role,
+          company: tokenPayload.company_id,
+        },
+        {
+          secret: this.JWT_SECRET_KEY,
+          expiresIn: this.JWT_EXPIRY_TIME,
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: tokenPayload.user_id,
+          email: tokenPayload.email,
+          role: tokenPayload.role,
+          company: tokenPayload.company_id,
+        },
+        {
+          secret: this.JWT_REFRESH_SECRET_KEY,
+          expiresIn: this.JWT_REFRESH_EXPIRY_TIME,
+        },
+      ),
+    ]);
 
-    const refreshToken = jwt.sign(
-      {
-        sub: tokenPayload.user_id,
-        email: tokenPayload.email,
-        role: tokenPayload.role,
-        company: tokenPayload.company_id,
-      },
-      this.JWT_REFRESH_SECRET_KEY,
-      { expiresIn: this.JWT_REFRESH_EXPIRY_TIME }
-    );
-
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
-  async verifyAccessToken(token: string): Promise<JwtPayload> {
-    try {
-      return jwt.verify(token, this.JWT_SECRET_KEY) as JwtPayload;
-    } catch (error) {
-      throw new InvalidAuthTokenException()
-    }
-  }
-
-  async verifyRefreshToken(token: string): Promise<JwtPayload> {
-    try {
-      return jwt.verify(token, this.JWT_REFRESH_SECRET_KEY) as JwtPayload;
-    } catch (error) {
-      throw new InvalidAuthTokenException()
+  async updateRefreshToken(userId: string, refreshToken: string) {
+    if (refreshToken) {
+      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+      await this.userhelperservice.updateUserRefreshToken(
+        userId,
+        hashedRefreshToken,
+      );
+    } else {
+      await this.userhelperservice.updateUserRefreshToken(userId, null);
     }
   }
 }

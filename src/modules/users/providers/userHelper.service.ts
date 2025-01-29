@@ -7,6 +7,9 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GeneralHelperFunctions } from '@common/helper/generalHelperFunctions';
 import { RegisterDto } from '@auth_modules/dto/register.dto';
+import { UserSession } from '@users_modules/entity/userSession.entity';
+import { DateFormatterHelperFunction } from '@common/helper/DateFormatterHelperFunction';
+import { CreateUserSessionDto } from '@users_modules/dto/createUserSession.dto';
 
 @Injectable()
 export class UserHelperService {
@@ -16,11 +19,21 @@ export class UserHelperService {
     private readonly dataSource: DataSource,
   ) {}
 
+  /**
+   * Validates a user by email or phone.
+   * @param {Object} data - The data to validate.
+   * @param {string} data.validate - The type of validation ('email', 'phone', or 'both').
+   * @param {string} [data.email] - The email to validate.
+   * @param {string} [data.phone] - The phone number to validate.
+   * @returns {Promise<UsersEntity | UsersEntity[] | null>} The validated user data.
+   * @throws {EmailAlreadyExistException} If the email already exists.
+   * @throws {PhoneAlredyExistException} If the phone number already exists.
+   */
   async validateUserByEmailOrPhone(data: {
     validate: string;
     email?: string;
     phone?: string;
-  }) {
+  }): Promise<UsersEntity | UsersEntity[] | null> {
     const validateEmail = async (): Promise<
       UsersEntity | UsersEntity[] | null
     > => {
@@ -51,12 +64,26 @@ export class UserHelperService {
       case 'both':
         const caseBothEmailData = await validateEmail();
         const caseBothPhoneData = await validatePhone();
-        return [caseBothEmailData, caseBothPhoneData];
+        return caseBothEmailData && caseBothPhoneData
+          ? [
+              caseBothEmailData,
+              ...(Array.isArray(caseBothPhoneData)
+                ? caseBothPhoneData
+                : [caseBothPhoneData]),
+            ]
+          : null;
       default:
         break;
     }
   }
 
+  /**
+   * Creates a new user.
+   * @param {RegisterDto} data - The user registration data.
+   * @param {string} ip - The IP address of the user.
+   * @param {string} timezone - The timezone of the user.
+   * @returns {Promise<UsersEntity>} The created user.
+   */
   async createUser(
     data: RegisterDto,
     ip: string,
@@ -81,5 +108,86 @@ export class UserHelperService {
     ];
     user.timezone = timezone;
     return await this.dataSource.getRepository(UsersEntity).save(user);
+  }
+
+  /**
+   * Updates the user's refresh token.
+   * @param {string} user_id - The ID of the user.
+   * @param {string} refreshToken - The new refresh token.
+   * @returns {Promise<void>}
+   */
+  async updateUserRefreshToken(
+    user_id: string,
+    refreshToken: string,
+  ): Promise<void> {
+    // UPDATE USER REFRESH TOKEN
+    await this.dataSource.getRepository(UserSession).update(user_id, {
+      refresh_token: {
+        token: refreshToken,
+        expiry:
+          refreshToken !== null &&
+          DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
+      },
+    });
+  }
+
+  /**
+   * Creates a new user session.
+   * @param {CreateUserSessionDto} createUserSessionDto - The user session data.
+   * @returns {Promise<UserSession>} The created user session.
+   */
+  async createUserSession(
+    createUserSessionDto: CreateUserSessionDto,
+  ): Promise<UserSession> {
+    // CREATE USER SESSION
+    const userSession = new UserSession();
+    userSession.user_id = createUserSessionDto.user_id;
+    userSession.ip = createUserSessionDto.ip;
+    userSession.browser = createUserSessionDto.browser;
+    userSession.session_token = {
+      token: createUserSessionDto.sessionToken,
+      expiry: DateFormatterHelperFunction.addHoursToCurrentTimestamp(1),
+    };
+    userSession.refresh_token = {
+      token: createUserSessionDto.refreshToken,
+      expiry: DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
+    };
+    userSession.userAgent = createUserSessionDto.userAgent;
+    return await this.dataSource.getRepository(UserSession).save(userSession);
+  }
+
+  /**
+   * Revokes all user sessions.
+   * @param {string} user_id - The ID of the user.
+   * @returns {Promise<void>}
+   */
+  async revokeAllUserSession(user_id: string): Promise<void> {
+    // REVOKE ALL USER SESSION
+    await this.dataSource
+      .getRepository(UserSession)
+      .createQueryBuilder()
+      .delete()
+      .where('user_id = :user_id', { user_id })
+      .execute();
+  }
+
+  /**
+   * Revokes a specific user session.
+   * @param {string} user_id - The ID of the user.
+   * @param {string} session_id - The ID of the session to revoke.
+   * @returns {Promise<void>}
+   */
+  async revokeSpecificUserSession(
+    user_id: string,
+    session_id: string,
+  ): Promise<void> {
+    // REVOKE SPECIFIC USER SESSION
+    await this.dataSource
+      .getRepository(UserSession)
+      .createQueryBuilder()
+      .delete()
+      .where('user_id = :user_id', { user_id })
+      .andWhere('id = :session_id', { session_id })
+      .execute();
   }
 }

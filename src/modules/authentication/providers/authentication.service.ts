@@ -31,7 +31,7 @@ export class AuthenticationService {
       registerUser.company_name,
       registeredUser,
     );
-    return this.authenticationtokenservice.generateAuthenticationToken();
+    // return this.authenticationtokenservice.generateAuthenticationToken();
   }
 
   async login(loginUser: LoginDto) {
