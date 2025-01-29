@@ -17,14 +17,11 @@ export class CreateUserSessionDto {
   @IsNotEmpty()
   ip: string;
 
-  @IsString()
-  @IsNotEmpty()
-  browser: string;
-
-  userAgent: {
+  user_agent: {
     version: string;
     os: string;
     platform: string;
     source: string;
+    browser: string;
   };
 }

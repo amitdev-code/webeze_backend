@@ -5,6 +5,9 @@ import { LoginDto } from '@auth_modules/dto/login.dto';
 import { UsersService } from '@users_modules/providers/users.service';
 import { WrongCredentialsException } from '@exceptions/authenticationExceptions/WrongCredentialsException';
 import * as bcrypt from 'bcrypt';
+import { AuthenticationTokenService } from './authenticationToken.service';
+import { UsersEntity } from '@users_modules/entity/user.entity';
+import { CompanyEntity } from '@company_modules/entity/company.entity';
 
 @Injectable()
 export class AuthenticationHelperService {
@@ -12,7 +15,8 @@ export class AuthenticationHelperService {
     private readonly userhelperservice: UserHelperService,
     private readonly userservice: UsersService,
     private readonly companyhelperservice: CompanyHelperService,
-  ) {}
+    private readonly authtokenservice: AuthenticationTokenService,
+  ) { }
 
   async validateUserRegistration(registerUser: any) {
     try {
@@ -43,5 +47,17 @@ export class AuthenticationHelperService {
     } else {
       throw new WrongCredentialsException();
     }
+  }
+
+  async createUserNewSession(user: UsersEntity, company: CompanyEntity, ip: string, timezone: string, agent: string) {
+    const authTokens = await this.authtokenservice.generateAuthenticationToken({ user_id: user.id, email: user.useremail.email, role: user.role, company_id: company.id });
+    const session = await this.userhelperservice.createUserSession({
+      user_id: user.id,
+      sessionToken: authTokens.accessToken,
+      refreshToken: authTokens.refreshToken,
+      ip,
+      user_agent: JSON.parse(agent),
+    });
+    return session;
   }
 }

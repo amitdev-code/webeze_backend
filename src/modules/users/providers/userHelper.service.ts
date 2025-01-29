@@ -143,7 +143,6 @@ export class UserHelperService {
     const userSession = new UserSession();
     userSession.user_id = createUserSessionDto.user_id;
     userSession.ip = createUserSessionDto.ip;
-    userSession.browser = createUserSessionDto.browser;
     userSession.session_token = {
       token: createUserSessionDto.sessionToken,
       expiry: DateFormatterHelperFunction.addHoursToCurrentTimestamp(1),
@@ -152,7 +151,7 @@ export class UserHelperService {
       token: createUserSessionDto.refreshToken,
       expiry: DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
     };
-    userSession.userAgent = createUserSessionDto.userAgent;
+    userSession.user_agent = createUserSessionDto.user_agent;
     return await this.dataSource.getRepository(UserSession).save(userSession);
   }
 

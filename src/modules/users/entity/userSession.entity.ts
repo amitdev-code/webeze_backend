@@ -8,6 +8,7 @@ interface UserAgent {
   os: string;
   platform: string;
   source: string;
+  browser: string;
 }
 
 @Entity('user_session')
@@ -24,19 +25,16 @@ export class UserSession extends BaseEntity {
   @Column({ default: '', length: 100 })
   ip: string;
 
-  @Column({ default: '', length: 100 })
-  browser: string;
-
   @Column({ type: 'jsonb' })
   session_token: {
     token: string;
-    expiry: Date;
+    expiry: string;
   };
 
   @Column({ type: 'jsonb' })
   refresh_token: {
     token: string;
-    expiry: Date;
+    expiry: string;
   };
 
   @Column('jsonb', {
@@ -45,9 +43,11 @@ export class UserSession extends BaseEntity {
       os: '',
       platform: '',
       source: '',
+      browser : '',
     },
+    nullable : true
   })
-  userAgent: UserAgent;
+  user_agent: UserAgent;
 
   @Column({
     type: 'enum',

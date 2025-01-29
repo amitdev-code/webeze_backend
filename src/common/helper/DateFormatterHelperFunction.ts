@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 
 export class DateFormatterHelperFunction {
   /**
@@ -24,27 +24,27 @@ export class DateFormatterHelperFunction {
   /**
    * Adds the specified number of hours to the current timestamp.
    * @param {number} hours - The number of hours to add.
-   * @returns {Date} The new date with the added hours.
+   * @returns {string} The new date with the added hours.
    */
-  static addHoursToCurrentTimestamp(hours: number): Date {
-    return moment().add(hours, 'hours').toDate();
+  static addHoursToCurrentTimestamp(hours: number): string {
+    return moment().add(hours, 'hours').format();
   }
 
   /**
    * Adds the specified number of minutes to the current timestamp.
    * @param {number} minutes - The number of minutes to add.
-   * @returns {Date} The new date with the added minutes.
+   * @returns {string} The new date with the added minutes.
    */
-  static addMinutesToCurrentTimestamp(minutes: number): Date {
-    return moment().add(minutes, 'minutes').toDate();
+  static addMinutesToCurrentTimestamp(minutes: number): string {
+    return moment().add(minutes, 'minutes').format();
   }
 
   /**
    * Adds the specified number of days to the current timestamp.
    * @param {number} days - The number of days to add.
-   * @returns {Date} The new date with the added days.
+   * @returns {string} The new date with the added days.
    */
-  static addDaysToCurrentTimestamp(days: number): Date {
-    return moment().add(days, 'days').toDate();
+  static addDaysToCurrentTimestamp(days: number): string {
+    return moment().add(days, 'days').format();
   }
 }
