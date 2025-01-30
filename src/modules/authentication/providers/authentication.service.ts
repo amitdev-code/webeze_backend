@@ -17,7 +17,7 @@ export class AuthenticationService {
     private readonly companyservice: CompanyService,
     private readonly authenticationhelperservice: AuthenticationHelperService,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async register(
     registerUser: RegisterDto,
@@ -80,7 +80,7 @@ export class AuthenticationService {
     const userCompany = await this.companyservice.findOneByUserId(user.id);
 
     // CREATE USER SESSION
-    const userSession = await this.authenticationhelperservice.createUserNewSession(user, userCompany, ip, timezone, agent);
+    const userSession = await this.authenticationhelperservice.updateUserSession(user, userCompany, ip, timezone, agent);
 
     return {
       user: user,
