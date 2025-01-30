@@ -2,7 +2,6 @@ import { SessionStatus } from '@constants/session-type';
 import { userNoActiveSessionFoundException } from '@exceptions/userExceptions/userNoActiveSessionFoundException';
 import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundException';
 import { Injectable } from '@nestjs/common';
-import { UsersEntity } from '@users_modules/entity/user.entity';
 import { UserSession } from '@users_modules/entity/userSession.entity';
 import { DataSource } from 'typeorm';
 
@@ -18,16 +17,17 @@ export class UserSessionService {
    * @throws {UserNotFoundException} If the user with the specified ID is not found in the database.
    */
   async getActiveSessionsByUserId(userId: string): Promise<UserSession[]> {
-    const user = await this.dataSource.getRepository(UsersEntity).findOne({
-      where: { id: userId },
-      relations: ['sessions'],
-    });
+    const userSessionList = await this.dataSource
+      .getRepository(UserSession)
+      .find({
+        where: { id: userId },
+      });
 
-    if (!user) {
+    if (!userSessionList) {
       throw new UserNotFoundException();
     }
 
-    return user.getActiveSessions();
+    return userSessionList;
   }
 
   /**

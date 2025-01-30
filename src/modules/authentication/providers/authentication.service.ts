@@ -4,7 +4,6 @@ import { CompanyHelperService } from '@company_modules/providers/companyHelper.s
 import { Injectable } from '@nestjs/common';
 import { UserHelperService } from '@users_modules/providers/userHelper.service';
 import { AuthenticationHelperService } from './authenticationHelper';
-import { AuthenticationTokenService } from './authenticationToken.service';
 import { DataSource } from 'typeorm';
 
 @Injectable()
@@ -14,27 +13,48 @@ export class AuthenticationService {
     private readonly companyhelperservice: CompanyHelperService,
     private readonly authenticationhelperservice: AuthenticationHelperService,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
-  async register(registerUser: RegisterDto, ip: string, timezone: string, agent: string) {
+  async register(
+    registerUser: RegisterDto,
+    ip: string,
+    timezone: string,
+    agent: string,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-
     try {
       // VALIDATE USER REGISTRATION
-      await this.authenticationhelperservice.validateUserRegistration(registerUser);
+      await this.authenticationhelperservice.validateUserRegistration(
+        registerUser,
+      );
 
       // CREATE USER
-      const registeredUser = await this.userhelperservice.createUser(registerUser, ip, timezone);
+      const registeredUser = await this.userhelperservice.createUser(
+        registerUser,
+        ip,
+        timezone,
+        queryRunner,
+      );
 
       // CREATE USER COMPANY
-      const userCompany = await this.companyhelperservice.createCompany(registerUser.company_name, registeredUser);
+      const userCompany = await this.companyhelperservice.createCompany(
+        registerUser.company_name,
+        registeredUser,
+        queryRunner,
+      );
 
       // CREATE USER SESSION
-      const userSession = await this.authenticationhelperservice.createUserNewSession(registeredUser, userCompany, ip, timezone, agent);
-
-      // COMMIT TRANSACTION
+      const userSession =
+        await this.authenticationhelperservice.createUserNewSession(
+          registeredUser,
+          userCompany,
+          ip,
+          timezone,
+          agent,
+          queryRunner,
+        );
       await queryRunner.commitTransaction();
 
       return {
@@ -43,11 +63,9 @@ export class AuthenticationService {
         session: userSession,
       };
     } catch (error) {
-      // ROLLBACK TRANSACTION
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
-      // RELEASE QUERY RUNNER
       await queryRunner.release();
     }
   }
