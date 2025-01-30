@@ -1,5 +1,4 @@
 import { RoleType } from '@constants/role-type';
-import { SessionStatus } from '@constants/session-type';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { IUser } from './interfaces/user.interface';
 import { UserSession } from './userSession.entity';
@@ -101,18 +100,9 @@ export class UsersEntity extends BaseEntity implements IUser {
   dashboard_tour: boolean;
 
   // RELATIONS
-  @OneToMany(() => UserSession, (session) => session.user)
+  @OneToMany(() => UserSession, (session) => session.user_id)
   sessions: UserSession[];
 
   @OneToMany(() => CompanyEntity, (company) => company.user)
   companies: CompanyEntity[];
-
-  // Helper method to get active sessions
-  getActiveSessions(): UserSession[] {
-    return (
-      this.sessions?.filter(
-        (session) => session.status === SessionStatus.ACTIVE,
-      ) ?? []
-    );
-  }
 }

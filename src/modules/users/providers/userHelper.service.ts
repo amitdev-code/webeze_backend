@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersEntity } from '@users_modules/entity/user.entity';
 import { UsersService } from '@users_modules/providers/users.service';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { GeneralHelperFunctions } from '@common/helper/generalHelperFunctions';
 import { RegisterDto } from '@auth_modules/dto/register.dto';
 import { UserSession } from '@users_modules/entity/userSession.entity';
@@ -88,6 +88,7 @@ export class UserHelperService {
     data: RegisterDto,
     ip: string,
     timezone: string,
+    queryRunner: QueryRunner,
   ): Promise<UsersEntity> {
     // CREATE USER ACCOUNT
     const user = new UsersEntity();
@@ -107,7 +108,7 @@ export class UserHelperService {
       },
     ];
     user.timezone = timezone;
-    return await this.dataSource.getRepository(UsersEntity).save(user);
+    return await queryRunner.manager.save(user);
   }
 
   /**
@@ -164,6 +165,7 @@ export class UserHelperService {
    */
   async createUserSession(
     createUserSessionDto: CreateUserSessionDto,
+    queryRunner: QueryRunner,
   ): Promise<UserSession> {
     // CREATE USER SESSION
     const userSession = new UserSession();
@@ -178,7 +180,7 @@ export class UserHelperService {
       expiry: DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
     };
     userSession.user_agent = createUserSessionDto.user_agent;
-    return await this.dataSource.getRepository(UserSession).save(userSession);
+    return await queryRunner.manager.save(userSession);
   }
 
   /**
