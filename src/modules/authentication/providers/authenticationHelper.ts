@@ -60,4 +60,16 @@ export class AuthenticationHelperService {
     });
     return session;
   }
+
+  async updateUserNewSession(user: UsersEntity, company: CompanyEntity, ip: string, timezone: string, agent: string) {
+    const authTokens = await this.authtokenservice.generateAuthenticationToken({ user_id: user.id, email: user.useremail.email, role: user.role, company_id: company.id });
+    const session = await this.userhelperservice.updateUserAuthToken({
+      user_id: user.id,
+      sessionToken: authTokens.accessToken,
+      refreshToken: authTokens.refreshToken,
+      ip,
+      user_agent: JSON.parse(agent),
+    });
+    return session;
+  }
 }

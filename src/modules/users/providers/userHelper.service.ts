@@ -17,7 +17,7 @@ export class UserHelperService {
     private readonly userservice: UsersService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Validates a user by email or phone.
@@ -66,11 +66,11 @@ export class UserHelperService {
         const caseBothPhoneData = await validatePhone();
         return caseBothEmailData && caseBothPhoneData
           ? [
-              caseBothEmailData,
-              ...(Array.isArray(caseBothPhoneData)
-                ? caseBothPhoneData
-                : [caseBothPhoneData]),
-            ]
+            caseBothEmailData,
+            ...(Array.isArray(caseBothPhoneData)
+              ? caseBothPhoneData
+              : [caseBothPhoneData]),
+          ]
           : null;
       default:
         break;
@@ -127,6 +127,32 @@ export class UserHelperService {
         expiry:
           refreshToken !== null &&
           DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
+      },
+    });
+  }
+
+  /**
+ * Updates the user's refresh token.
+ * @param {string} user_id - The ID of the user.
+ * @param {string} refreshToken - The new refresh token.
+ * @returns {Promise<void>}
+ */
+  async updateUserAuthToken(
+    createUserSessionDto: CreateUserSessionDto,
+  ): Promise<void> {
+    // UPDATE USER REFRESH TOKEN
+    await this.dataSource.getRepository(UserSession).update(createUserSessionDto.user_id, {
+      refresh_token: {
+        token: createUserSessionDto.refreshToken,
+        expiry:
+          createUserSessionDto.refreshToken !== null &&
+          DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
+      },
+      session_token: {
+        token: createUserSessionDto.sessionToken,
+        expiry:
+          createUserSessionDto.sessionToken !== null &&
+          DateFormatterHelperFunction.addHoursToCurrentTimestamp(1),
       },
     });
   }

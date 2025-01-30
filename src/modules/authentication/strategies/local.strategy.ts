@@ -1,17 +1,18 @@
-import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
+import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthenticationHelperService } from '@auth_modules/providers/authenticationHelper';
+import { WrongCredentialsException } from '@exceptions/authenticationExceptions/WrongCredentialsException';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-    constructor(private authHelperService: AuthenticationHelperService) {
-        super();
+    constructor(private authService: AuthenticationHelperService) {
+        super({ usernameField: 'email' }); // Use 'email' as the field name
     }
 
-    validate(email: string, password: string) {
-        const user = this.authHelperService.validateUserLogin({ email, password });
-        if (!user) throw new UnauthorizedException();
+    async validate(email: string, password: string): Promise<any> {
+        const user = await this.authService.validateUserLogin({ email, password });
+        if (!user) throw new WrongCredentialsException();
         return user;
     }
 }

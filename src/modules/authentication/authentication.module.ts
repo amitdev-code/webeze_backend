@@ -10,6 +10,11 @@ import { CompanyModule } from '@company_modules/company.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LocalStrategy } from './strategies/local.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { LocalAuthGuard } from '@guards/local-auth.guard';
+import { GoogleAuthGuard } from '@guards/google-auth.guard';
+import { JwtAuthGuard } from '@guards/jwt-auth.guard';
 
 const SERVICES = [
   AuthenticationService,
@@ -22,29 +27,25 @@ const CONSTROLLERS = [
   AuthenticationVerificationController,
 ];
 
+const PROVIDERS = [LocalStrategy,
+  GoogleStrategy,
+  LocalAuthGuard,
+  GoogleAuthGuard,
+  JwtAuthGuard,];
+
 const IMPORT_MODULE = [
   UsersModule,
   CompanyModule,
   PassportModule,
-  JwtModule.registerAsync({
-    imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => ({
-      secret: configService.getOrThrow('auth.secret', {
-        infer: true,
-      }),
-      signOptions: {
-        expiresIn: configService.getOrThrow('auth.expires', {
-          infer: true,
-        }),
-      },
-    }),
-    inject: [ConfigService],
-  }),
 ];
 @Module({
   controllers: [...CONSTROLLERS],
-  providers: [...SERVICES],
+  providers: [...SERVICES, ...PROVIDERS],
   exports: [...SERVICES],
-  imports: [...IMPORT_MODULE],
+  imports: [...IMPORT_MODULE,
+  JwtModule.register({
+    secret: process.env.JWT_SECRET_KEY,
+    signOptions: { expiresIn: process.env.JWT_EXPIRY_TIME },
+  }),],
 })
-export class AuthenticationModule {}
+export class AuthenticationModule { }

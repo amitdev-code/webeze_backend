@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from '../providers/authentication.service';
 import { RegisterDto } from '@auth_modules/dto/register.dto';
 import { LoginDto } from '@auth_modules/dto/login.dto';
@@ -7,6 +7,7 @@ import { SocialAuthenticationService } from '@auth_modules/providers/socialAuthe
 import { CurrentUserIp } from '@decorators/getUserIp.decorator';
 import { CurrentUserTimezone } from '@decorators/getUserTimezone.decorator';
 import { CurrentUserAgent } from '@decorators/getUserAgent.decorator';
+import { LocalAuthGuard } from '@guards/local-auth.guard';
 // import { RegisterDto } from '@auth_modules/dto/register.dto';
 // import { LoginDto } from '@auth_modules/dto/login.dto';
 
@@ -29,8 +30,10 @@ export class AuthenticationController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return this.authenticationService.login(loginDto);
+  @UseGuards(LocalAuthGuard)
+
+  async login(@Body() loginDto: LoginDto, @CurrentUserIp() ip: string, @CurrentUserTimezone() timezone: string, @CurrentUserAgent() agent: string) {
+    return this.authenticationService.login(loginDto, ip, timezone, agent);
   }
 
   // @Post('google')

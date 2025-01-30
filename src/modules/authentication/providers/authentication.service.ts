@@ -6,12 +6,16 @@ import { UserHelperService } from '@users_modules/providers/userHelper.service';
 import { AuthenticationHelperService } from './authenticationHelper';
 import { AuthenticationTokenService } from './authenticationToken.service';
 import { DataSource } from 'typeorm';
+import { UsersService } from '@users_modules/providers/users.service';
+import { CompanyService } from '@company_modules/providers/company.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly userhelperservice: UserHelperService,
+    private readonly userservice: UsersService,
     private readonly companyhelperservice: CompanyHelperService,
+    private readonly companyservice: CompanyService,
     private readonly authenticationhelperservice: AuthenticationHelperService,
     private readonly dataSource: DataSource,
   ) { }
@@ -52,7 +56,18 @@ export class AuthenticationService {
     }
   }
 
-  async login(loginUser: LoginDto) {
-    return loginUser;
+  async login(loginDto: LoginDto, ip: string, timezone: string, agent: string) {
+
+    const user = await this.userservice.findOneByEmail(loginDto.email);
+    const userCompany = await this.companyservice.findOneByUserId(user.id);
+
+    // CREATE USER SESSION
+    const userSession = await this.authenticationhelperservice.createUserNewSession(user, userCompany, ip, timezone, agent);
+
+    return {
+      user: user,
+      company: userCompany,
+      session: userSession,
+    };
   }
 }

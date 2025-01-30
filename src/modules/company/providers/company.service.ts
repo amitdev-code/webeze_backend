@@ -9,7 +9,7 @@ export class CompanyService {
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   async findAll(): Promise<CompanyEntity[]> {
     return await this.dataSource.getRepository(CompanyEntity).find();
@@ -19,6 +19,15 @@ export class CompanyService {
     return await this.dataSource
       .getRepository(CompanyEntity)
       .findOne({ where: { id } });
+  }
+
+  async findOneByUserId(id: string): Promise<CompanyEntity> {
+    return await this.dataSource
+      .getRepository(CompanyEntity)
+      .findOne({
+        where: { user_id: id },
+        relations: ['settings'],
+      });
   }
 
   async findOneByName(name: string): Promise<CompanyEntity | null> {
