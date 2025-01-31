@@ -10,6 +10,8 @@ import { RegisterDto } from '@auth_modules/dto/register.dto';
 import { UserSession } from '@users_modules/entity/userSession.entity';
 import { DateFormatterHelperFunction } from '@common/helper/DateFormatterHelperFunction';
 import { CreateUserSessionDto } from '@users_modules/dto/createUserSession.dto';
+import { VerificationType } from '@constants/verification-type';
+import { UserVerificationEntity } from '@users_modules/entity/userVerification.entity';
 
 @Injectable()
 export class UserHelperService {
@@ -228,5 +230,20 @@ export class UserHelperService {
       .where('user_id = :user_id', { user_id })
       .andWhere('id = :session_id', { session_id })
       .execute();
+  }
+
+  async createUserVerificationToken(
+    user: UsersEntity,
+    token: string,
+    otp: string,
+  ) {
+    const verificationToken = new UserVerificationEntity();
+    verificationToken.user_id = user.id;
+    verificationToken.verification_code = otp;
+    verificationToken.verification_token = token;
+    verificationToken.verification_type = VerificationType.TWO_FACTOR_AUTH;
+    return await this.dataSource
+      .getRepository(UserVerificationEntity)
+      .save(verificationToken);
   }
 }

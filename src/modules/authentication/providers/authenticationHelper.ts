@@ -106,7 +106,7 @@ export class AuthenticationHelperService {
     const verificationToken =
       await this.authtokenservice.generateVerificationToken(user.id);
     const OTP = GeneralHelperFunctions.generateSixDigitOTP();
-    await this.userservice.createUserVerificationToken(
+    await this.userhelperservice.createUserVerificationToken(
       user,
       verificationToken,
       OTP,
