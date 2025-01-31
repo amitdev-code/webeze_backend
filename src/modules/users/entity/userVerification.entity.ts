@@ -1,12 +1,9 @@
 import { BaseEntity } from '@common/entity/baseEntity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn } from 'typeorm';
 import { UsersEntity } from './user.entity';
 
 @Entity('user_verification')
 export class UserVerificationEntity extends BaseEntity {
-  @ManyToOne(() => UsersEntity, (user) => user.sessions, {
-    onDelete: 'CASCADE',
-  })
   @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
 
