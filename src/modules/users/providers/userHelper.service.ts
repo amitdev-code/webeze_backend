@@ -17,7 +17,7 @@ export class UserHelperService {
     private readonly userservice: UsersService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   /**
    * Validates a user by email or phone.
@@ -66,11 +66,11 @@ export class UserHelperService {
         const caseBothPhoneData = await validatePhone();
         return caseBothEmailData && caseBothPhoneData
           ? [
-            caseBothEmailData,
-            ...(Array.isArray(caseBothPhoneData)
-              ? caseBothPhoneData
-              : [caseBothPhoneData]),
-          ]
+              caseBothEmailData,
+              ...(Array.isArray(caseBothPhoneData)
+                ? caseBothPhoneData
+                : [caseBothPhoneData]),
+            ]
           : null;
       default:
         break;
@@ -133,31 +133,42 @@ export class UserHelperService {
   }
 
   /**
- * Updates the user's refresh token.
- * @param {string} user_id - The ID of the user.
- * @param {string} refreshToken - The new refresh token.
- * @returns {Promise<void>}
- */
+   * Updates the user's refresh token.
+   * @param {string} user_id - The ID of the user.
+   * @param {string} refreshToken - The new refresh token.
+   * @returns {Promise<void>}
+   */
   async updateUserAuthToken(
     createUserSessionDto: CreateUserSessionDto,
-  ): Promise<void> {
+  ): Promise<UserSession> {
     // UPDATE USER REFRESH TOKEN
-    await this.dataSource.getRepository(UserSession).update(createUserSessionDto.user_id, {
-      refresh_token: {
-        token: createUserSessionDto.refreshToken,
-        expiry:
-          createUserSessionDto.refreshToken !== null &&
-          DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
-      },
-      session_token: {
-        token: createUserSessionDto.sessionToken,
-        expiry:
-          createUserSessionDto.sessionToken !== null &&
-          DateFormatterHelperFunction.addHoursToCurrentTimestamp(1),
+    // TODO: Check if the user session exists before updating it. If session is created with different ip address, then create a new session.and send alert main to user.
+    await this.dataSource
+      .getRepository(UserSession)
+      .update(createUserSessionDto.user_id, {
+        refresh_token: {
+          token: createUserSessionDto.refreshToken,
+          expiry:
+            createUserSessionDto.refreshToken !== null &&
+            DateFormatterHelperFunction.addDaysToCurrentTimestamp(7),
+        },
+        session_token: {
+          token: createUserSessionDto.sessionToken,
+          expiry:
+            createUserSessionDto.sessionToken !== null &&
+            DateFormatterHelperFunction.addHoursToCurrentTimestamp(1),
+        },
+        ip: createUserSessionDto.ip,
+        user_agent: createUserSessionDto.user_agent,
+      });
+
+    return await this.dataSource.getRepository(UserSession).findOne({
+      where: {
+        user_id: createUserSessionDto.user_id,
+        ip: createUserSessionDto.ip,
       },
     });
   }
-  
 
   /**
    * Creates a new user session.
