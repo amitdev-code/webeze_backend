@@ -17,7 +17,7 @@ export class AuthenticationController {
     private readonly authenticationService: AuthenticationService,
     private readonly authenticationTokenService: AuthenticationTokenService,
     private readonly socialAuthenticationService: SocialAuthenticationService,
-  ) { }
+  ) {}
 
   @Post('register')
   async register(
@@ -26,13 +26,22 @@ export class AuthenticationController {
     @CurrentUserTimezone() timezone: string,
     @CurrentUserAgent() agent: string,
   ) {
-    return this.authenticationService.register(registerDto, ip, timezone, agent);
+    return this.authenticationService.register(
+      registerDto,
+      ip,
+      timezone,
+      agent,
+    );
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-
-  async login(@Body() loginDto: LoginDto, @CurrentUserIp() ip: string, @CurrentUserTimezone() timezone: string, @CurrentUserAgent() agent: string) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @CurrentUserIp() ip: string,
+    @CurrentUserTimezone() timezone: string,
+    @CurrentUserAgent() agent: string,
+  ) {
     return this.authenticationService.login(loginDto, ip, timezone, agent);
   }
 

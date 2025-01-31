@@ -6,13 +6,13 @@ import { WrongCredentialsException } from '@exceptions/authenticationExceptions/
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-    constructor(private authService: AuthenticationHelperService) {
-        super({ usernameField: 'email' }); // Use 'email' as the field name
-    }
+  constructor(private authService: AuthenticationHelperService) {
+    super({ usernameField: 'email' }); // Use 'email' as the field name
+  }
 
-    async validate(email: string, password: string): Promise<any> {
-        const user = await this.authService.validateUserLogin({ email, password });
-        if (!user) throw new WrongCredentialsException();
-        return user;
-    }
+  async validate(email: string, password: string): Promise<any> {
+    const user = await this.authService.validateUserLogin({ email, password });
+    if (!user) throw new WrongCredentialsException();
+    return user;
+  }
 }
