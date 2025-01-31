@@ -18,6 +18,8 @@ export class AuthenticationTokenService {
   private readonly JWT_EXPIRY_TIME: string;
   private readonly JWT_REFRESH_SECRET_KEY: string;
   private readonly JWT_REFRESH_EXPIRY_TIME: string;
+  private readonly JWT_VERIFICATION_SECRET_KEY: string;
+  private readonly JWT_VERIFICATION_EXPIRY_TIME: string;
   constructor(
     private readonly configService: ConfigService,
     private readonly userhelperservice: UserHelperService,
@@ -42,6 +44,21 @@ export class AuthenticationTokenService {
       },
     );
 
+    const JWT_VERIFICATION_SECRET_KEY = this.configService.getOrThrow(
+      'auth.jwtVerificationSecret',
+      {
+        infer: true,
+      },
+    );
+    const JWT_VERIFICATION_EXPIRY_TIME = this.configService.getOrThrow(
+      'auth.jwtVerificationExpires',
+      {
+        infer: true,
+      },
+    );
+
+    this.JWT_VERIFICATION_SECRET_KEY = JWT_VERIFICATION_SECRET_KEY;
+    this.JWT_VERIFICATION_EXPIRY_TIME = JWT_VERIFICATION_EXPIRY_TIME;
     this.JWT_SECRET_KEY = JWT_SECRET_KEY;
     this.JWT_EXPIRY_TIME = JWT_EXPIRY_TIME;
     this.JWT_REFRESH_SECRET_KEY = JWT_REFRESH_SECRET_KEY;
@@ -82,6 +99,20 @@ export class AuthenticationTokenService {
     };
   }
 
+  async generateVerificationToken(user_id: string) {
+    const verificationToken = await this.jwtService.signAsync(
+      {
+        sub: user_id,
+      },
+      {
+        secret: this.JWT_VERIFICATION_SECRET_KEY,
+        expiresIn: this.JWT_VERIFICATION_EXPIRY_TIME,
+      },
+    );
+
+    return verificationToken;
+  }
+
   async updateRefreshToken(userId: string, refreshToken: string) {
     if (refreshToken) {
       const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -92,5 +123,11 @@ export class AuthenticationTokenService {
     } else {
       await this.userhelperservice.updateUserRefreshToken(userId, null);
     }
+  }
+
+  async decodeVerificationToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: this.JWT_VERIFICATION_SECRET_KEY,
+    });
   }
 }

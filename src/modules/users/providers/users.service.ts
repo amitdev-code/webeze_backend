@@ -2,6 +2,7 @@ import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundEx
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { UsersEntity } from '@users_modules/entity/user.entity';
+import { UserVerificationEntity } from '@users_modules/entity/userVerification.entity';
 import { DataSource } from 'typeorm';
 
 @Injectable()
@@ -84,5 +85,15 @@ export class UsersService {
     }
     user.trusted_ip_address.push({ ip, trusted: true });
     return await this.dataSource.getRepository(UsersEntity).save(user);
+  }
+
+  async getUserVerificationToken(
+    userId: string,
+    verificationType: string,
+  ): Promise<UserVerificationEntity> {
+    return await this.dataSource.getRepository(UserVerificationEntity).findOne({
+      where: { user_id: userId, verification_type: verificationType },
+      relations: ['user'],
+    });
   }
 }

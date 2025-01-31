@@ -48,5 +48,7 @@ export default registerAs<AuthConfig>('auth', () => {
     dbEncryptionKey: process.env.DATABASE_ENCRYPTION_KEY,
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    jwtVerificationSecret: process.env.JWT_VERIFICATION_SECRET_KEY,
+    jwtVerificationExpires: process.env.JWT_VERIFICATION_EXPIRY_TIME,
   };
 });

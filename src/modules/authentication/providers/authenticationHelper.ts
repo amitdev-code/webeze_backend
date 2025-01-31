@@ -10,6 +10,7 @@ import { UsersEntity } from '@users_modules/entity/user.entity';
 import { CompanyEntity } from '@company_modules/entity/company.entity';
 import { RegisterDto } from '@auth_modules/dto/register.dto';
 import { QueryRunner } from 'typeorm';
+import { GeneralHelperFunctions } from '@common/helper/generalHelperFunctions';
 
 @Injectable()
 export class AuthenticationHelperService {
@@ -99,5 +100,15 @@ export class AuthenticationHelperService {
       user_agent: JSON.parse(agent),
     });
     return session;
+  }
+
+  async createUserVerificationToken(user: UsersEntity) {
+    const verificationToken =
+      await this.authtokenservice.generateVerificationToken(user.id);
+    const OTP = GeneralHelperFunctions.generateSixDigitOTP();
+    return {
+      verificationToken,
+      OTP,
+    };
   }
 }

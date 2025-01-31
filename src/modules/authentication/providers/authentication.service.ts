@@ -7,6 +7,10 @@ import { AuthenticationHelperService } from './authenticationHelper';
 import { DataSource } from 'typeorm';
 import { UsersService } from '@users_modules/providers/users.service';
 import { CompanyService } from '@company_modules/providers/company.service';
+import { AuthenticationTokenService } from './authenticationToken.service';
+import { VerificationType } from '@constants/verification-type';
+import { InvalidVerificationCodeException } from '@exceptions/authenticationExceptions/InvalidVerificationCodeException';
+import { InvalidAuthorizationTokenException } from '@exceptions/authenticationExceptions/InvalidAuthorizationTokenException';
 
 @Injectable()
 export class AuthenticationService {
@@ -16,6 +20,7 @@ export class AuthenticationService {
     private readonly companyhelperservice: CompanyHelperService,
     private readonly companyservice: CompanyService,
     private readonly authenticationhelperservice: AuthenticationHelperService,
+    private readonly authenticationtokenservice: AuthenticationTokenService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -93,5 +98,26 @@ export class AuthenticationService {
       company: userCompany,
       session: userSession,
     };
+  }
+
+  async verifyTwoFactorAuth(token: string, code: string) {
+    if (!token) {
+      throw new InvalidAuthorizationTokenException();
+    }
+    if (!code) {
+      throw new InvalidVerificationCodeException();
+    }
+    const decodedToken =
+      await this.authenticationtokenservice.decodeVerificationToken(token);
+    const userVerificationEntity =
+      await this.userservice.getUserVerificationToken(
+        decodedToken.sub,
+        VerificationType.TWO_FACTOR_AUTH,
+      );
+
+    if (userVerificationEntity.verification_code !== code) {
+      throw new InvalidVerificationCodeException();
+    }
+    return true;
   }
 }

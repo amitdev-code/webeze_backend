@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthenticationService } from '../providers/authentication.service';
 import { AuthenticationTokenService } from '../providers/authenticationToken.service';
 import { SocialAuthenticationService } from '@auth_modules/providers/socialAuthentication.service';
@@ -12,17 +12,10 @@ export class AuthenticationVerificationController {
     private readonly socialAuthenticationService: SocialAuthenticationService,
   ) {}
 
-  //   @UseGuards(JwtRefreshGuard)
-  //   @Post('refresh-token')
-  //   async refreshToken(@Req() req) {
-  //     const { refreshToken } = req.user;
-  //     return this.authenticationService.refreshToken(refreshToken);
-  //   }
-
-  //   @Post('verify-2fa')
-  //   async verifyTwoFactorAuth(
-  //     @Body() { userId, code }: { userId: string; code: string },
-  //   ) {
-  //     return this.authenticationService.verifyTwoFactorAuth(userId, code);
-  //   }
+  @Post('verify-2fa')
+  async verifyTwoFactorAuth(
+    @Body() { token, code }: { token: string; code: string },
+  ) {
+    return await this.authenticationService.verifyTwoFactorAuth(token, code);
+  }
 }
