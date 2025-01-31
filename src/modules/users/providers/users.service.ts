@@ -1,3 +1,4 @@
+import { VerificationType } from '@constants/verification-type';
 import { UserNotFoundException } from '@exceptions/userExceptions/userNotFoundException';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -95,5 +96,20 @@ export class UsersService {
       where: { user_id: userId, verification_type: verificationType },
       relations: ['user'],
     });
+  }
+
+  async createUserVerificationToken(
+    user: UsersEntity,
+    token: string,
+    otp: string,
+  ) {
+    const verificationToken = new UserVerificationEntity();
+    verificationToken.user_id = user.id;
+    verificationToken.verification_code = otp;
+    verificationToken.verification_token = token;
+    verificationToken.verification_type = VerificationType.TWO_FACTOR_AUTH;
+    return await this.dataSource
+      .getRepository(UserVerificationEntity)
+      .save(verificationToken);
   }
 }
